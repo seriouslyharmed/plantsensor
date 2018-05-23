@@ -8,9 +8,6 @@ const char* MQTT_SERVER = "10.42.11.15";
 const int MQTT_PORT = 1883;
 const char* MQTT_TOPIC = "home/plant/2";
 
-//change to the correct settings after network changes
-//const char* MY_SSID = "olympos_iot";
-//const char* MY_PWD = "Rq9q82YZX3LqfjF&8Zg7";
 const char* MY_SSID = "Olympos 24";
 const char* MY_PWD = "b4574rd!";
 
@@ -111,8 +108,7 @@ void setup() {
   connectWifi();
   
   client.setServer(MQTT_SERVER, MQTT_PORT);
-  Serial.print("Connectig MQTT: ");
-  Serial.println(client.connect(MQTT_ID));
+  client.connect(MQTT_ID);
 }
 
 void loop() {
@@ -170,14 +166,8 @@ void sendData(float temp, float soil_hum, float battery) {
 
   const char jsonChar[106] = "";
   root.printTo((char*)jsonChar, root.measureLength() + 1);
-  Serial.print("Built json object: ");
-  Serial.println(jsonChar);
-  Serial.print("Publishing:");
-  Serial.println(client.publish(MQTT_TOPIC, jsonChar));
-  Serial.print("MQTT State: ");
-  Serial.println(client.state());
+  client.publish(MQTT_TOPIC, jsonChar);
   client.loop();
   client.disconnect();
-  // TEST IF WE NEED TO DO THIS
-  wifiClient.stop();
+  Wifi.disconnect();
 }
