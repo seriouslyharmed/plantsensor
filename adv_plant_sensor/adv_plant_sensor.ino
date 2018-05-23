@@ -14,16 +14,6 @@
   GPIO15  SWITCH for measuring Soil Moisture or Battery Voltage
 
   //////////////////////////////////////////////////////////////////////
-
-  ThinsSpeak
-
-  Field 1 = Temperature Celcius
-  Field 2 = Soil Moisture %
-  Field 3 = Battery %
-  Field 4 = Sleep Time
-  Field 5 = Wifi Strength dBm
-
-  /////////////////////////////////////////
 */
 
 #include <ESP8266WiFi.h>
@@ -716,54 +706,8 @@ void ReadSensor()
   if (Soil > 100) Soil = 100;
   if (Soil <  0) Soil = 0;
 
+  ///////// Send Data /////////
   sendDataMQTT();
-}
-
-/////////// ThingSpeak /////////////
-void ThingSpeak()
-{
-  if (Setup == 1) {
-    return;
-  }
-
-  if (WiFi.status() == WL_CONNECTED) {
-
-    if (client.connect("api.thingspeak.com", 80)) {
-
-      digitalWrite (Led, LOW);
-
-      String postStr = "";
-      postStr += apiKey;
-      postStr += "&field1=";
-      postStr += String(temp);
-      postStr += "&field2=";
-      postStr += String(Soil);
-      postStr += "&field3=";
-      postStr += String(Batt);
-      postStr += "&field4=";
-      postStr += String(sleepTimeS);
-      postStr += "&field5=";
-      postStr += String(WiFi.RSSI());
-      postStr += "\r\n\r\n";
-
-      client.print("POST /update HTTP/1.1\n");
-      client.print("Host: api.thingspeak.com\n");
-      client.print("Connection: close\n");
-      client.print("X-THINGSPEAKAPIKEY: " + apiKey + "\n");
-
-      client.print("Content-Type: application/x-www-form-urlencoded\n");
-      client.print("Content-Length: ");
-      client.print(postStr.length());
-      client.print("\n\n");
-      client.print(postStr);
-      delay(1000);
-    }
-  }
-  digitalWrite (Led, HIGH);
-  WiFi.disconnect();
-  delay(1000);
-  ESP.deepSleep(sleepTimeS * 1000000, WAKE_RF_DEFAULT);
-  delay(10000);
 }
 
 void sendDataMQTT() {
